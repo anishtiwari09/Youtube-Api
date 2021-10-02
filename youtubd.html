@@ -91,7 +91,7 @@
 
     </div>
     <script>
-        let q='paani'
+        let q='javascript'
         let apikey='AIzaSyBU2IgwqUt0bcSA1G4KIhW8Bn9wEJIzDCA'        
         let getVideo=(q)=>fetch(`https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&q=${q}&key=${apikey}`).then((response)=>response.json()).catch((rej)=>console.log(rej))
         
