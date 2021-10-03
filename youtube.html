@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>youtube</title>
+    <style>
+        #main{
+            background-color:#F9F9F9;
+        }
+        #navbar{
+            position: fixed;
+            width: 100%;;
+            flex-wrap: wrap;
+            top:0px;
+         height:8vh;
+        
+        }
+        #navbar ul{
+            position: relative;
+            width:90%;
+            display: flex;
+            list-style-type: none;
+            flex-grow: 2;
+            flex-wrap: wrap;
+            margin-top:0px;
+            padding:0px;
+        }
+        ul li:nth-of-type(1){
+            margin-left:40px;
+            margin-bottom:20px;;
+        }
+        .box{
+
+        
+           margin-right:10%;
+        }
+       .box1{
+          
+          
+           flex-grow: 2;
+       }
+        
+        #navbar > ul > li >div{
+            display: flex;
+            
+        }
+        #navbar ul li div input{
+            width:55%;
+            font-size: 24px;
+        
+        }
+        #navbar ul li div button{
+            width:60px;
+            cursor:pointer;
+        }
+        li p{
+            font-size:30px;
+            margin:0px;
+            padding:0Px;
+            font-weight:bold
+        }
+        #main{
+
+            margin-top: 14vh;
+            display: flex;
+            flex-wrap: wrap;
+            gap:20px;
+        }
+        #main > div{
+            margin-left: 1%;;
+            width:23%;
+        }
+        #main .frame iframe{
+            width:100%; 
+        }
+        #main p{
+            font-size:20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="navbar">
+        <ul>
+            <li class='box'><p>Youtube</p></li>
+            <li class='box box1'><div><input type="search" id="search-input" name="search" placeholder="Search"><button><img src="icon.svg" id='icon-img'></button></div></li>
+        </ul>
+    </div>
+    <div id=main>
+
+    </div>
+    <script>
+        let q='javascript'
+        let apikey='AIzaSyBU2IgwqUt0bcSA1G4KIhW8Bn9wEJIzDCA'        
+        let getVideo=(q)=>fetch(`https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&q=${q}&key=${apikey}`).then((response)=>response.json()).catch((rej)=>console.log(rej))
+        
+        const fetchVideo=async(q)=>{
+            try{
+                const{
+                    items:results,
+                    pageInfo:{
+                        resultsPerPage,
+                        totalResults
+                    }
+                    
+                }=await getVideo(q)
+                console.log(results)
+                await displayVideo(results)
+                
+                //console.log(pageInfo)
+            }catch(e){
+                //error handling
+            }
+        }
+const displayVideo=result=>{
+    const container=document.getElementById('main')
+    container.innerHTML=null
+    console.log('result')
+    console.log(result)
+   let id=null
+   let kind=null
+    for(video of result)
+    {
+
+      //  console.log(video.id.videoId,video.snippet.title)
+        if(video.id.videoId==undefined)
+       {
+          id=video.id
+          kind=video.kind
+         
+       }
+        else
+        {
+            console.log('else execute')
+            id=video.id.videoId
+            kind=video.id.kind
+            console.log(id)
+           
+        }
+      const card=createVideoCard(id,video.snippet.title,kind)
+       
+        //console.log(kind)
+        if(card)
+        container.append(card)
+    }
+    
+}
+const createVideoCard=(video,title,kind)=>
+{
+    console.log('working fine')
+    console.log(kind)
+    if(kind!='youtube#video')
+    return false
+   
+    const div=document.createElement('div')
+    let frame=document.createElement('div')
+    frame.className='frame'
+    frame.innerHTML=`<iframe width="560" height="315" src="https://www.youtube.com/embed/${video}" "title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`
+   
+    let thumbnail=document.createElement('div')
+    thumbnail.className='text'
+    let p=document.createElement('p')
+    p.textContent=title
+    thumbnail.append(p)
+    div.append(frame,thumbnail)
+    return div
+    
+}
+const fetchPopularVideo=()=>fetch(`https://youtube.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&chart=mostPopular&regionCode=in&key=${apikey}&maxResults=20`).then((response)=>response.json().catch((error)=>console.log(error)))
+const displayPopularVideo=async ()=>{
+    try{
+        console.log('working fine')
+        let {items}=await fetchPopularVideo()
+       // console.log('items')
+        //console.log(items)
+       displayVideo(items)
+    }
+    catch(error)
+    {
+        console.log(error)//error handling
+    }
+    
+}
+
+let handleSearch=()=>
+{
+    let input=document.getElementById('search-input').value
+    if(!input)
+    return
+    fetchVideo(input)
+}
+
+window.addEventListener('load',()=>
+{
+    displayPopularVideo()
+    let button=document.querySelector('button')
+    button.addEventListener('click',handleSearch)
+})
+
+    </script>
+
+</body>
+</html>
